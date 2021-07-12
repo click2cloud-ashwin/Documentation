@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: netpod1
+  labels:
+    podkey: netpodkey1
+spec:
+  restartPolicy: OnFailure
+  terminationGracePeriodSeconds: 2
+  containers:
+    - name: netctr
+      image: yuvalif/fedora-tcpdump
+      command: ["tail", "-f", "/dev/null"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: netpod2
+spec:
+  restartPolicy: OnFailure
+  terminationGracePeriodSeconds: 2
+  containers:
+    - name: netctr
+      image: yuvalif/fedora-tcpdump
+      command: ["tail", "-f", "/dev/null"]
