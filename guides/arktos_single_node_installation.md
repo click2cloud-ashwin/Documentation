@@ -6,7 +6,7 @@ This document is intended for new users to install Arktos platform with Mizar as
 
 For more details on Arktos installation, please refer to [this link](https://github.com/centaurus-cloud/arktos/blob/master/docs/setup-guide/arktos-enforces-network-feature.md)
 
-## Prerequisites 
+## Prerequisites
 ### Install Dependencies
 ```bash
 sudo apt-get install -y ca-certificates curl wget apt-transport-https gnupg lsb-release vim
@@ -62,6 +62,19 @@ It should have content like shown below
 network:
   version: 2
   ethernets:
+          enXXXX:
+            addresses: [192.168.1.222/24]
+            gateway4: 192.168.1.1
+            nameservers:
+              addresses: [8.8.8.8]
+```
+
+Change the interface name ```enXXXX``` to ```eth0```.
+
+```text
+network:
+  version: 2
+  ethernets:
           eth0:
             addresses: [192.168.1.222/24]
             gateway4: 192.168.1.1
@@ -71,9 +84,31 @@ network:
 and then apply configuration before reboot your system
 
 ```bash
-sudo netplan generate && netplan apply && sudo reboot
+sudo netplan generate && netplan apply 
 ```
 
+verify your interface name and IP by running:
+```bash
+ip a
+```
+it should contain interface name as ```eth0``` and valid IP address
+```text
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:af:b5:41 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.222/24 brd 192.168.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::250:56ff:feaf:b541/64 scope link
+```
+if everything is correct then reboot your system:
+```bash
+sudo reboot
+```
 
 ### Update kernel
 To check kernel, run following command
@@ -93,15 +128,15 @@ bash kernelupdate.sh
 Please reboot your system after kernel update.
 
 ## Arktos and Mizar Deployment
-1. Prepare lab machine, the preferred OS is **Ubuntu 18.04**. 
-   
+1. Prepare lab machine, the preferred OS is **Ubuntu 18.04**.
+
    If you are using AWS, the recommended instance size is ```t2.2xlarge``` and the storage size is ```128GB``` or more.
-   
+
    If you are using OnPrem, the recommended instance size is ```8 CPU```, ```16GB RAM``` and the storage size is ```150GB``` or more.
 
 
 ```bash
-wget https://raw.githubusercontent.com/Click2Cloud-Centaurus/Documentation/deployment/deployment_scripts/arktos-setup.sh
+wget https://raw.githubusercontent.com/Click2Cloud-Centaurus/Documentation/main/deployment_scripts/arktos-setup.sh
 bash arktos-setup.sh
 ```
 The lab machine will be rebooted once above script is completed, you will be automatically logged out of the lab machine.
@@ -158,7 +193,7 @@ You also want make sure the default kubernetes bridge network configuration file
 ```bash
 sudo ls /etc/cni/net.d
 sudo rm /etc/cni/net.d/bridge.conf # if bridge.conf is present else skip this command
-kubectl deploy -f https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/etc/deploy/deploy.mizar.yaml
+kubectl apply -f https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/etc/deploy/deploy.mizar.yaml
 ```
 
 3. Verify Mizar pods i.e. mizar-operator and mizar-daemon pods are in running state, for that run:
