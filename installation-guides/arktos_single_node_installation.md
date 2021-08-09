@@ -152,8 +152,14 @@ To make sure containerd is running as expected, run:
 ```bash
 sudo systemctl status containerd.service
 ```
+2. To install mizar dependencies,  run:
 
-2. Before deploying Mizar, you will need first start up Arktos API server:
+```bash
+wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/bootstrap.sh
+bash bootstrap.sh
+```
+
+3. Before deploying Mizar, you will need first start up Arktos API server:
 
 ```bash
 cd $HOME/go/src/k8s.io/arktos
@@ -188,7 +194,7 @@ Alternatively, you can write to the default kubeconfig:
   cluster/kubectl.sh
 ```
 You also want make sure the default kubernetes bridge network configuration file is deleted:
-3. Deploy Mizar. Open a new terminal window, and run:
+4. Deploy Mizar. Open a new terminal window, and run:
 
 ```bash
 sudo ls /etc/cni/net.d
@@ -196,7 +202,7 @@ sudo rm /etc/cni/net.d/bridge.conf # if bridge.conf is present else skip this co
 kubectl apply -f https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/etc/deploy/deploy.mizar.yaml
 ```
 
-3. Verify Mizar pods i.e. mizar-operator and mizar-daemon pods are in running state, for that run:
+5. Verify Mizar pods i.e. mizar-operator and mizar-daemon pods are in running state, for that run:
 
 ```bash
 kubectl get pods
