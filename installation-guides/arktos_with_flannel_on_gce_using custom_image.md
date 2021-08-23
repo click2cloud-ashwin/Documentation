@@ -9,11 +9,8 @@ Use cases for a Arktos multi-node dev cluster on GCE are to test features in clo
 ```bigquery
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 sudo apt-get install apt-transport-https ca-certificates gnupg
-echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 sudo apt-get update && sudo apt-get install google-cloud-sdk -y
-sudo apt-get update
-vi /etc/apt/sources.list.d/google-cloud-sdk.list
 sudo apt-get update
 sudo apt-get update && sudo apt-get install google-cloud-sdk -y
 gcloud init # Provide credentials
@@ -84,14 +81,20 @@ vi /etc/netplan/01-network-manager-all.yaml
 ```
 It should have content like shown below or simply replace `ensXX` with `eth0`
 ```bigquery
+# This file is generated from information provided by the datasource.  Changes
+# to it will not persist across an instance reboot.  To disable cloud-init's
+# network configuration capabilities, write a file
+# /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:
+# network: {config: disabled}
 network:
-  version: 2
-  ethernets:
-          eth0:
-            addresses: [192.168.1.82/24]
-            gateway4: 192.168.1.1
-            nameservers:
-              addresses: [8.8.8.8]
+    ethernets:
+        eth0:
+            dhcp4: true
+            match:
+                macaddress: 42:01:0a:0:0f:c1
+            set-name: eth0
+    version: 2
+
 ```
 and then apply configuration before reboot your system
 
