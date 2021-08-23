@@ -6,28 +6,27 @@ Use cases for a Arktos multi-node dev cluster on GCE are to test features in clo
 
 1. You will need an GCP account, and [gcloud](https://cloud.google.com/sdk/docs/install#deb) configured in your bash profile. Please refer to gcloud configuration documentation.
 ### Install gcloud
-```bigquery
+```bash
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-sudo apt-get install apt-transport-https ca-certificates gnupgcurl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-sudo apt-get update && sudo apt-get install google-cloud-sdk -y
-sudo apt-get update
-sudo apt-get update && sudo apt-get install google-cloud-sdk -y
+sudo apt-get install apt-transport-https ca-certificates gnupg -y -q
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
 gcloud init # Provide credentials
 ```
 2. You will need golang, docker, and build-essential installed.
 
 ### Install Docker 
-```bigquery
+```bash
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 echo \
   "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
+sudo apt-get update -y
 sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 ```
 
 ### Install Golang
-```bigquery
+```bash
 wget https://storage.googleapis.com/golang/go1.15.4.linux-amd64.tar.gz
 tar -C /usr/local -xzf go1.15.4.linux-amd64.tar.gz
 echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
@@ -42,24 +41,24 @@ source /etc/profile
 
 Run `ip a` and check interface name 
 
-```
+```text
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000 
-link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-inet 127.0.0.1/8 scope host lo
-valid_lft forever preferred_lft forever
-inet6 ::1/128 scope host
-valid_lft forever preferred_lft forever
+      link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+      inet 127.0.0.1/8 scope host lo
+      valid_lft forever preferred_lft forever
+      inet6 ::1/128 scope host
+      valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc mq state UP group default qlen 1000
-link/ether 00:50:56:86:f2:c1 brd ff:ff:ff:ff:ff:ff
-inet 192.168.1.113/24 brd 192.168.1.255 scope global eth0
-valid_lft forever preferred_lft forever
-inet6 fe80::250:56ff:fe86:f2c1/64 scope link
-valid_lft forever preferred_lft forever
+      link/ether 00:50:56:86:f2:c1 brd ff:ff:ff:ff:ff:ff
+      inet 192.168.1.113/24 brd 192.168.1.255 scope global eth0
+      valid_lft forever preferred_lft forever
+      inet6 fe80::250:56ff:fe86:f2c1/64 scope link
+      valid_lft forever preferred_lft forever
 ```
 Here network interface should be `eth0`, if it is `eth0` then skip following section and go to Step 2
 
 If it is not `eth0` then to change interface to eth0 follow following steps
-```bigquery
+```bash
 apt remove ifupdown
 dmesg | grep -i eth #this will give information
 ```
@@ -79,7 +78,7 @@ vi /etc/netplan/01-network-manager-all.yaml
 #Please give proper file name present /etc/netplan location
 ```
 It should have content like shown below or simply replace `ensXX` with `eth0`
-```bigquery
+```yaml
 # This file is generated from information provided by the datasource.  Changes
 # to it will not persist across an instance reboot.  To disable cloud-init's
 # network configuration capabilities, write a file
@@ -104,7 +103,7 @@ sudo netplan generate && netplan apply && sudo reboot
 ## Arktos cluster start-up
 
 1. Clone arktos repository
-```bigquery
+```bash
 mkdir -p /root/go/src/k8s.io
 cd /root/go/src/k8s.io
 git clone -b  kube-up-mizar https://github.com/Click2Cloud-Centaurus/arktos.git
