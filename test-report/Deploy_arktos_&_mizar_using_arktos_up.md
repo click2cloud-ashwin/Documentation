@@ -7,7 +7,7 @@ Created instance on AWS
 
 ![](images/img.png)
 
-### Step-2:Install dependencies
+### Step-2: Install dependencies
 Login to created instance and run following steps to install dependencies required for arktos deployment:
 
 ```bash
