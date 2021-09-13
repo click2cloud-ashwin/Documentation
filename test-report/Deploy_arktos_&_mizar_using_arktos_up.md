@@ -1,9 +1,9 @@
-# Test report for deploying Arktos cluster with Mizar CNI
+# Test report for deployment of Arktos cluster with Mizar CNI
 
-This document captures the steps to deploy an Arktos cluster lab with mizar cni. The machines in this lab used are AWS EC2 t2-xlarge (4 CPUs, 16GB mem), Ubuntu 18.04 LTS.
+We have followed (user guide to deploy arktos cluster with Mizar as CNI) using arktos-up script
 
 ### Step-1: Create an instance on AWS
-Created instance on AWS
+Created instance on AWS (Used t2-xlarge (4 CPUs, 16GB mem), Ubuntu 18.04 LTS.)
 
 ![](images/img.png)
 
@@ -119,6 +119,9 @@ Rebooting
 *Login to instance  and run following steps to deploy arktos cluster with Mizar as CNI*
 ```bash
 cd $HOME/go/src/k8s.io/arktos
+# To clone modified code, use following steps
+git remote add -f c2c https://github.com/Click2Cloud-Centaurus/arktos.git
+git checkout guide-cni-updates
 CNIPLUGIN=mizar ./hack/arktos-up.sh
 ```
 **Finally we got  following output, which indicates that arktos cluster created successfully with Mizar as CNI**
