@@ -29,7 +29,7 @@ uname -a
 ##### Output
 ![](images/img_1.png)
 
-Here kernel version was `5.4.0-1045-aws` hence, to update kernel version to `5.6.0-rc2`, we used following steps :
+Here kernel version was `5.4.0-1045-aws` which is less than the required kernel version, so to update the kernel version to `5.6.0-rc2`, we used the following steps :
 
 ```bash
 wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/kernelupdate.sh
