@@ -73,10 +73,10 @@ ln -snf /var/run/kubernetes/admin.kubeconfig $HOME/.kube/config
 
 ```bash
 cd $HOME/dashboard
-echo 'kubernetes-dashboard:bind_address = 0.0.0.0 '>> $HOME/dashboard/.npmrc 
 sudo sed -i '/bind_address/s/^/#/g' $HOME/dashboard/.npmrc
 sudo sed -i 's/8080/9443/g' $HOME/dashboard/angular.json
 sudo sed -i '0,/RANDFILE/{s/RANDFILE/\#&/}' /etc/ssl/openssl.cnf
+echo 'kubernetes-dashboard:bind_address = 0.0.0.0 '>> $HOME/dashboard/.npmrc 
 ```
 7. To run dashboard:
 
