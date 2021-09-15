@@ -29,6 +29,7 @@ echo Setup: Enlist arktos
 
 cd ~
 git clone https://github.com/CentaurusInfra/arktos.git ~/go/src/k8s.io/arktos
+cd ~/go/src/k8s.io/arktos && git checkout v0.8
 cd ~/go/src/k8s.io
 ln -s ./arktos kubernetes
 
