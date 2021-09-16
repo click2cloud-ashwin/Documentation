@@ -22,11 +22,12 @@ sudo bash kernelupdate.sh
 2. Clone the Arktos repository and install the required dependencies:
 
 ```bash
-git clone https://github.com/CentaurusInfra/arktos.git ~/go/src/k8s.io/arktos
+git clone https://github.com/CentaurusInfra/arktos.git ~/go/src/k8s.io/arktos 
+sudo bash $HOME/go/src/k8s.io/arktos/hack/setup-dev-node.sh
 echo export PATH=$PATH:/usr/local/go/bin\ >> ~/.profile
 echo cd \$HOME/go/src/k8s.io/arktos >> ~/.profile
 source ~/.profile
-sudo bash ./hack/setup-dev-node.sh
+
 ```
   
 3. Start Arktos cluster
