@@ -1,8 +1,8 @@
 # Arktos deployment with Mizar CNI 
 
-This document is intended for new users to install Arktos platform with Mizar as the underlying network technology.
+This document is intended for new users to install the Arktos platform with Mizar as the underlying network technology.
 
-Prepare lab machine, the prefered OS is **Ubuntu 18.04**. If you are using AWS, the recommanded instance size is ```t2.large``` and the storage size is ```128GB``` or more
+Prepare lab machine, the preferred OS is **Ubuntu 18.04**. If you are using AWS, the recommended instance size is ```t2.large``` and the storage size is ```128GB``` or more
 
 The steps might change with the progress of development.
 
@@ -12,14 +12,14 @@ The steps might change with the progress of development.
 uname -a
 ```
 
-Update the kernel if kernel version is below `5.6.0-rc2`
+Update the kernel if the kernel version is below `5.6.0-rc2`
 
 ```bash
 wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/kernelupdate.sh
 sudo bash kernelupdate.sh
 ```
 
-2. To install dependencies required for Arktos, run the following commands: 
+2. Clone the Arktos repository and install the required dependencies:
 
 ```bash
 git clone https://github.com/CentaurusInfra/arktos.git ~/go/src/k8s.io/arktos
