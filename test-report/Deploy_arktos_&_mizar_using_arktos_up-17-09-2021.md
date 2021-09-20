@@ -457,7 +457,7 @@ git remote add -f c2c https://github.com/Click2Cloud-Centaurus/arktos.git
 git checkout default-cni-mizar
 ```
 
-### Step-4: Start Arktos cluster
+### Step-3: Start Arktos cluster
 *Login to instance  and run following steps to deploy arktos cluster with Mizar as CNI*
 ```bash
 cd $HOME/go/src/k8s.io/arktos
@@ -1218,7 +1218,7 @@ Alternatively, you can write to the default kubeconfig:
 
 ##### *Leave this terminal here as it is (do not close the terminal) and open new terminal of same instance*
 
-### Step-5 Check Cluster health
+### Step-4 Check Cluster health
 Open new terminal for same instance and run following commands:
 
 ##### Check node status
