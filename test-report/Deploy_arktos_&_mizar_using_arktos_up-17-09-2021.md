@@ -1226,6 +1226,7 @@ Open new terminal for same instance and run following commands:
 ./cluster/kubectl.sh  get node
 ```
 ***Output***
+
 ![](images/img_11.png)
 
 ##### Check pods status
@@ -1233,6 +1234,7 @@ Open new terminal for same instance and run following commands:
 ./cluster/kubectl.sh get pods -Ao wide
 ```
 ***Output***
+
 ![](images/img_12.png)
 
 
@@ -1241,6 +1243,7 @@ Open new terminal for same instance and run following commands:
 ./cluster/kubectl.sh get vpc -Ao wide
 ```
 ***Output***
+
 ![](images/img_13.png)
 
 
@@ -1249,6 +1252,7 @@ Open new terminal for same instance and run following commands:
 ./cluster/kubectl.sh get subnet -Ao wide
 ```
 ***Output***
+
 ![](images/img_14.png)
 
 
@@ -1257,6 +1261,7 @@ Open new terminal for same instance and run following commands:
 ./cluster/kubectl.sh get dividers -Ao wide
 ```
 ***Output***
+
 ![](images/img_15.png)
 
 
@@ -1265,6 +1270,7 @@ Open new terminal for same instance and run following commands:
 ./cluster/kubectl.sh get bouncers -Ao wide
 ```
 ***Output***
+
 ![](images/img_16.png)
 
 
@@ -1273,6 +1279,7 @@ Open new terminal for same instance and run following commands:
 ./cluster/kubectl.sh get net
 ```
 ***Output***
+
 ![](images/img_17.png)
 
 
