@@ -91,41 +91,28 @@ From arktos directory run following commands
 
 Create the dashboard service account
 ```bash
-./cluster/kubectl.sh create serviceaccount dashboard-admin-sa
+./cluster/kubectl.sh serviceaccount dashboard-admin -n kube-system
 ```
-This will create a service account named dashboard-admin-sa in the default namespace
+This will create a service account named dashboard-admin in the kube-system namespace
 
 Next bind the dashboard-admin-service-account service account to the cluster-admin role
 
 ```bash
-./cluster/kubectl.sh create clusterrolebinding dashboard-admin-sa --clusterrole=cluster-admin --serviceaccount=default:dashboard-admin-sa
+./cluster/kubectl.sh clusterrolebinding dashboard-admin --clusterrole=cluster-admin --serviceaccount=kube-system:dashboard-admin
 ```
 When we created the dashboard-admin-sa service account Kubernetes also created a secret for it.
 
-List secrets using:
+Use kubectl describe to get the access token from the secret:
 
 ```bash
-./cluster/kubectl.sh get secrets
-```
-We can see the dashboard-admin-sa service account secret.
-```text
-NAME                             TYPE                                  DATA   AGE
-dashboard-admin-sa-token-47hw5   kubernetes.io/service-account-token   3      10m
-default-token-x4kps              kubernetes.io/service-account-token   3      10m
-mizar-operator-token-bh7dq       kubernetes.io/service-account-token   3      10m
-```
-
-Use kubectl describe to get the access token:
-
-```bash
-./cluster/kubectl.sh describe secret dashboard-admin-sa-token-XXXXX
+./cluster/kubectl.sh describe secrets -n kube-system $(kubectl -n kube-system get secret | awk '/dashboard-admin/{print $1}')
 ```
 
 ```text
-Name:         dashboard-admin-sa-token-47hw5
-Namespace:    default
+Name:         dashboard-admin-token-47hw5
+Namespace:    kube-system
 Labels:       <none>
-Annotations:  kubernetes.io/service-account.name: dashboard-admin-sa
+Annotations:  kubernetes.io/service-account.name: dashboard-admin
               kubernetes.io/service-account.uid: f949c124-6950-43a8-afb4-8de6cadf43a2
 
 Type:  kubernetes.io/service-account-token

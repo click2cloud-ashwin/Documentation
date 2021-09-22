@@ -78,7 +78,7 @@ To update Kernel download and run script for kernel update
 
 ```bash
 wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/kernelupdate.sh
-bash kernelupdate.sh
+sudo bash kernelupdate.sh
 ```
 Please reboot your system after kernel update.
 
@@ -86,7 +86,7 @@ Please reboot your system after kernel update.
 
 1.Disable swap and enable IP forwarding on all nodes
 ```bash
-swapoff -a
+sudo swapoff -a
 ```
 Update fstab file
 ```bash
@@ -169,7 +169,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 5. Run K8s cluster
 ```bash
-kubeadm init --apiserver-advertise-address=<Host-IP> --pod-network-cidr=20.0.0.0/8
+sudo kubeadm init --apiserver-advertise-address=<Host-IP> --pod-network-cidr=20.0.0.0/8
 ```
 
 
@@ -260,4 +260,14 @@ kubectl get bouncers -A
 ```text
 NAME                                          VPC    NET    IP              MAC                 DROPLET         STATUS        CREATETIME                   PROVISIONDELAY
 net0-b-ff73d09e-6f84-4792-b1a0-fc99cfc57cd5   vpc0   net0   192.168.0.105   fa:16:3e:56:f4:21   dnd-centaurus   Provisioned   2021-06-21T06:52:11.782960   1.41518
+```
+
+#### Note: On single node, to schedule pod you need to run the following command to remove taint.
+
+```bash
+kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-
+```
+##### Output:
+```text
+node/master untainted
 ```

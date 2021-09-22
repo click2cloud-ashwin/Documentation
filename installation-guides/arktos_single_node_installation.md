@@ -6,6 +6,14 @@ This document is intended for new users to install Arktos platform with Mizar as
 
 For more details on Arktos installation, please refer to [this link](https://github.com/centaurus-cloud/arktos/blob/master/docs/setup-guide/arktos-enforces-network-feature.md)
 
+### Prepare lab machine 
+
+The preferred OS is **Ubuntu 18.04**.
+
+If you are using AWS, the recommended instance size is ```t2.2xlarge``` and the storage size is ```128GB``` or more.
+
+If you are using On-Premise, the recommended instance size is ```8 CPU```, ```16GB RAM``` and the storage size is ```150GB``` or more.
+
 ## Prerequisites
 ### Step 1: Install Dependencies
 ```bash
@@ -52,7 +60,7 @@ Edit network manager yaml
 ```
 # Edit or Create if not exists
 # Please give proper file name present /etc/netplan location
-vim /etc/netplan/00-installer-config.yaml 
+sudo vim /etc/netplan/00-installer-config.yaml 
 ```
 It should have content like shown below
 ```text
@@ -118,20 +126,15 @@ wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/kernelupdat
 ```
 ```bash
 wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/bootstrap.sh
-bash bootstrap.sh
+sudo bash bootstrap.sh
 ```
 
-### Arktos and Mizar Deployment
-1. Prepare lab machine, the preferred OS is **Ubuntu 18.04**.
-
-   If you are using AWS, the recommended instance size is ```t2.2xlarge``` and the storage size is ```128GB``` or more.
-
-   If you are using OnPrem, the recommended instance size is ```8 CPU```, ```16GB RAM``` and the storage size is ```150GB``` or more.
-
+### Step 4: Arktos and Mizar Deployment
+1. Install the arktos and dependencies
 
 ```bash
 wget https://raw.githubusercontent.com/Click2Cloud-Centaurus/Documentation/main/deployment_scripts/arktos-setup.sh
-bash arktos-setup.sh
+sudo bash arktos-setup.sh
 ```
 The lab machine will be rebooted once above script is completed, you will be automatically logged out of the lab machine.
 

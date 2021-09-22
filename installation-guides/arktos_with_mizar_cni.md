@@ -5,10 +5,13 @@ The machines in this lab used are AWS EC2 t2-large (2 CPUs, 8GB mem), Ubuntu 18.
 The steps might change with the progress of development.
 
 1. To install dependencies required for Arktos, run the following commands:
+
 ```bash
-wget https://raw.githubusercontent.com/CentaurusInfra/arktos/master/hack/setup-dev-node.sh
-sudo bash setup-dev-node.sh
-git clone https://github.com/CentaurusInfra/arktos.git ~/go/src/k8s.io/arktos
+git clone https://github.com/Click2Cloud-Centaurus/arktos.git ~/go/src/k8s.io/arktos -b default-cni-mizar
+sudo bash $HOME/go/src/k8s.io/arktos/hack/setup-dev-node.sh
+```
+
+```bash
 echo export PATH=$PATH:/usr/local/go/bin\ >> ~/.profile
 echo cd \$HOME/go/src/k8s.io/arktos >> ~/.profile
 source ~/.profile
