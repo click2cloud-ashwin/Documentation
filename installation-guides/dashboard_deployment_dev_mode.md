@@ -91,14 +91,14 @@ From arktos directory run following commands
 
 Create the dashboard service account
 ```bash
-./cluster/kubectl.sh serviceaccount dashboard-admin -n kube-system
+./cluster/kubectl.sh create serviceaccount dashboard-admin -n kube-system
 ```
 This will create a service account named dashboard-admin in the kube-system namespace
 
 Next bind the dashboard-admin-service-account service account to the cluster-admin role
 
 ```bash
-./cluster/kubectl.sh clusterrolebinding dashboard-admin --clusterrole=cluster-admin --serviceaccount=kube-system:dashboard-admin
+./cluster/kubectl.sh create clusterrolebinding dashboard-admin --clusterrole=cluster-admin --serviceaccount=kube-system:dashboard-admin
 ```
 When we created the dashboard-admin-sa service account Kubernetes also created a secret for it.
 
