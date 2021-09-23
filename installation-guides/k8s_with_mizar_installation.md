@@ -162,9 +162,13 @@ echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https:/
 ```
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y kubelet kubeadm kubectl
-sudo apt-mark hold kubelet kubeadm kubectl
+sudo apt-get update -y
+sudo apt install  -y -q \
+	kubeadm=1.21.1-00 \
+	kubelet=1.21.1-00 \
+	kubectl=1.21.1-00 \
+	kubernetes-cni \
+	&& sudo apt-mark hold kubeadm kubelet kubectl
 ```
 
 5. Run K8s cluster
