@@ -100,7 +100,7 @@ Next bind the dashboard-admin-service-account service account to the cluster-adm
 ```bash
 ./cluster/kubectl.sh create clusterrolebinding dashboard-admin --clusterrole=cluster-admin --serviceaccount=kube-system:dashboard-admin
 ```
-When we created the dashboard-admin-sa service account Kubernetes also created a secret for it.
+When we created the dashboard-admin service account Kubernetes also created a secret for it.
 
 Use kubectl describe to get the access token from the secret:
 

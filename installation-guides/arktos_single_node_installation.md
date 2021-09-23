@@ -150,6 +150,8 @@ To make sure containerd is running as expected, run:
 sudo systemctl status containerd.service
 ```
 2. Enable network related feature and the default network to be of "mizar" type
+
+**Note:** Required for mizar CNI only
 ```bash
 export FEATURE_GATES="AllAlpha=false,MandatoryArktosNetwork=true"
 export ARKTOS_NETWORK_TEMPLATE=mizar
