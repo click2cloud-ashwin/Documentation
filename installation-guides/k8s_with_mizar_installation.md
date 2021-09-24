@@ -1,16 +1,17 @@
-Setup Mizar with Kubernetes
-==================
+ Introduction
+================
+This document intended to capture the installation steps for the single node and multi-node kubernetes platform with Mizar as the underlying network service.
 
-## Install Dependencies
-```bash
-sudo apt-get install -y ca-certificates curl apt-transport-https gnupg lsb-release vim
-```
+
+## Setup Single-Node Kubernetes with Mizar
+
+
 ### 1. Check Network Interface
 verify your interface name and IP by running:
 ```bash
 ip a
 ```
-it should contain interface name as ```eth0``` and valid IP address
+##### Output:
 ```text
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -18,63 +19,28 @@ it should contain interface name as ```eth0``` and valid IP address
        valid_lft forever preferred_lft forever
     inet6 ::1/128 scope host
        valid_lft forever preferred_lft forever
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc mq state UP group default qlen 1000
+2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9000 qdisc mq state UP group default qlen 1000
     link/ether 00:50:56:86:f2:c1 brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.113/24 brd 192.168.1.255 scope global eth0
+    inet 192.168.1.105/24 brd 192.168.1.255 scope global eth0
        valid_lft forever preferred_lft forever
     inet6 fe80::250:56ff:fe86:f2c1/64 scope link
        valid_lft forever preferred_lft forever
 ```
-Here network interface should be `eth0`, if it is `eth0` then skip following section and go to Step 2
+Currently, for mizar CNI to work properly, here network interface should be `eth0`, if it is `eth0` then skip following section and goto **step 2**
 
-If it is not `eth0` then to change interface to eth0 follow following steps:
-
-Edit Grub file and change `GRUB_CMDLINE_LINUX` as shown below:
+If it is not `eth0` then to change interface to `eth0`, follow the following steps:
 
 ```bash
-sudo vim /etc/default/grub
+wget https://raw.githubusercontent.com/Click2Cloud-Centaurus/Documentation/main/deployment_scripts/enable_persistent_naming.sh
+sudo bash enable_persistent_naming.sh
 ```
-
-From `GRUB_CMDLINE_LINUX=""` change to `GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0"`
-After changing configuration, run following command
-
-```bash
-sudo update-grub
-```
-
-Edit network manager yaml
-
-```bash
-# Edit or Create if not exists
-# Please give proper file name present /etc/netplan location
-sudo vim /etc/netplan/00-installer-config.yaml 
-```
-It should have content like shown below
-```text
-network:
-  version: 2
-  ethernets:
-          eth0:
-            addresses: [private-ip-address/prefix]
-            gateway4: default-gateway-ip
-            nameservers:
-              addresses: [dns-ip]
-```
-and then apply configuration before reboot your system
-
-```bash
-sudo netplan apply && sudo reboot
-```
-
 
 ### 2. Update kernel
 To check kernel, run following command
 
 `uname -a`
 
-If it `5.6.0-rc2` then you can skip following portion and continue with Step-3
-
-To update Kernel download and run script for kernel update
+If kernel version below `5.6.0-rc2`, to update kernel perform the following steps: 
 
 ```bash
 wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/kernelupdate.sh
@@ -84,103 +50,143 @@ Please reboot your system after kernel update.
 
 ### 3. Install Kubernetes
 
-1.Disable swap and enable IP forwarding on all nodes
+verify your interface name and IP by running:
 ```bash
-sudo swapoff -a
+ip a
 ```
-Update fstab file
-```bash
-sudo vim /etc/fstab
-```
-
+Currently, for mizar CNI to work properly, it should contain interface name as ```eth0``` and valid IP address
+. If not, then perform **step 1**.
 ```text
-# /etc/fstab: static file system information.
-#
-# Use 'blkid' to print the universally unique identifier for a
-# device; this may be used with UUID= as a more robust way to name devices
-# that works even if disks are added and removed. See fstab(5).
-#
-# <file system> <mount point>   <type>  <options>       <dump>  <pass>
-# / was on /dev/sda4 during installation
-UUID=6f612675-026a-4547030ff8a7e /               ext4    errors=remount-ro 0       1
-# swap was on /dev/sda6 during installation
-#UUID=46ee415b-4afa-413c275e264 none    swap  sw    0     0 <------Comment this part
-/dev/sda5 /Data               ext4   defaults  0 0
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:af:b5:41 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.105/24 brd 192.168.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::250:56ff:feaf:b541/64 scope link
 ```
 
-2. Install Kubectl
-```bash
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-kubectl version --client
-```
-
-3. Letting iptables see bridged traffic
-```bash
-cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
-br_netfilter
-EOF
-
-cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
-EOF
-sudo sysctl --system
-```
-4. Install runtime
+**1.** Install dependencies and setup kubernetes
 
 ```bash
-sudo apt-get update
-sudo apt-get -y install \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
+sudo apt-get install -y ca-certificates curl apt-transport-https gnupg lsb-release vim
 ```
 ```bash
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+wget https://raw.githubusercontent.com/Click2Cloud-Centaurus/Documentation/main/deployment_scripts/k8s-setup.sh
+sudo bash k8s-setup.sh
+```
+**2.** Run kubernetes cluster
+```bash
+sudo kubeadm init --apiserver-advertise-address=$(hostname -I | awk '{print $1}') --pod-network-cidr=20.0.0.0/8
 ```
 
-```bash
-echo \
-  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+kubeadm init first runs a series of prechecks to ensure that the machine is ready to run Kubernetes. These prechecks expose warnings and exit on errors. kubeadm init then downloads and installs the cluster control plane components. This may take several minutes. After it finishes you should see:
+
+#### Output:
+```text
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a Pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  /docs/concepts/cluster-administration/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join <control-plane-host>:<control-plane-port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>
 ```
 
+To make kubectl work for your non-root user, run these commands, which are also part of the kubeadm init output:
 ```bash
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io
-``` 
-
-4. Install Kubeadm and Kubelet
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+Alternatively, if you are the root user, you can run:
+```bash
+export KUBECONFIG=/etc/kubernetes/admin.conf
+```
+### 4. Deploy Mizar
 
 ```bash
-sudo apt-get update
-sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+kubectl apply -f https://raw.githubusercontent.com/Click2Cloud-Centaurus/mizar/grpcio-fix/etc/deploy/deploy.mizar.yaml
 ```
 
+#### Note: On single node, to schedule pod you need to run the following command to remove taint.
+
 ```bash
-sudo apt-get update -y
-sudo apt install  -y -q \
-	kubeadm=1.21.1-00 \
-	kubelet=1.21.1-00 \
-	kubectl=1.21.1-00 \
-	kubernetes-cni \
-	&& sudo apt-mark hold kubeadm kubelet kubectl
+kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-
+```
+##### Output:
+```text
+node/master untainted
+```
+Now you your single node kubernetes cluster should ready to use.
+
+**Note:** If you don't want to set up multi-node cluster, then you can jump to testing steps below:
+
+# Setup Multi-Node Kubernetes with Mizar
+
+## Installation Steps
+1. Before begin, **please complete step 1,2 ( if applicable ) and 3.1** from the **on all the nodes** ( master and worker ) before proceeding.
+   
+**Note: Make sure that your ```/etc/hosts``` file contains master node and worker nodes entries.**
+
+2. From the **master node** machine, start kubernetes cluster if you haven't already: 
+```bash
+sudo kubeadm init --apiserver-advertise-address=$(hostname -I | awk '{print $1}') --pod-network-cidr=20.0.0.0/8
+```
+#### Output:
+```text
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a Pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  /docs/concepts/cluster-administration/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join <control-plane-host>:<control-plane-port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>
 ```
 
-5. Run K8s cluster
+To make kubectl work for your non-root user, run these commands, which are also part of the kubeadm init output:
 ```bash
-sudo kubeadm init --apiserver-advertise-address=<Host-IP> --pod-network-cidr=20.0.0.0/8
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+Alternatively, if you are the root user, you can run:
+```bash
+export KUBECONFIG=/etc/kubernetes/admin.conf
 ```
 
+3. Joining your nodes
+The nodes are where your workloads (containers and Pods, etc.) run. 
 
-### 3. Deploy Mizar
+To add new nodes to your cluster do the following for each machine:
+
+Run the command that was **output by kubeadm init on master node**. 
+For example:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/etc/deploy/deploy.mizar.yaml
+sudo kubeadm join <control-plane-host>:<control-plane-port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>
 ```
 
 
@@ -191,19 +197,19 @@ kubectl apply -f https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next
 ```bash
 kubectl get nodes
 ```
-##### Output:
+##### Output: 
+**Note:** It may differ depending upon size of cluster.
 ````text
 NAME            STATUS   ROLES                  AGE    VERSION
 dnd-centaurus   Ready    control-plane,master   149m   v1.21.2
 ````
-
-
 #### To check pods
 
 ```bash
 kubectl get pods -Ao wide
 ```
 ##### Output:
+**Note:** It may differ depending upon size of cluster.
 ```text
 default       mizar-daemon-fjnqn                      1/1     Running   0          152m   192.168.0.105   dnd-centaurus   <none>           <none>
 default       mizar-operator-79d4846f95-xnqlv         1/1     Running   0          152m   192.168.0.105   dnd-centaurus   <none>           <none>
@@ -215,6 +221,7 @@ kube-system   kube-controller-manager-dnd-centaurus   1/1     Running   0       
 kube-system   kube-proxy-jcqfs                        1/1     Running   0          153m   192.168.0.105   dnd-centaurus   <none>           <none>
 kube-system   kube-scheduler-dnd-centaurus 
 ```
+
 #### To check vpcs
 
 ```bash
@@ -264,14 +271,4 @@ kubectl get bouncers -A
 ```text
 NAME                                          VPC    NET    IP              MAC                 DROPLET         STATUS        CREATETIME                   PROVISIONDELAY
 net0-b-ff73d09e-6f84-4792-b1a0-fc99cfc57cd5   vpc0   net0   192.168.0.105   fa:16:3e:56:f4:21   dnd-centaurus   Provisioned   2021-06-21T06:52:11.782960   1.41518
-```
-
-#### Note: On single node, to schedule pod you need to run the following command to remove taint.
-
-```bash
-kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-
-```
-##### Output:
-```text
-node/master untainted
 ```

@@ -37,67 +37,39 @@ ip a
        valid_lft forever preferred_lft forever
     inet6 fe80::250:56ff:feaf:b541/64 scope link
 ```
-Here network interface should be `eth0`, if it is `eth0` then skip following section and go to step 3
+Currently, for mizar CNI to work properly, here network interface should be `eth0`, if it is `eth0` then skip following section and go to step 3
 
-If it is not `eth0` then to change interface to eth0 follow following steps:
-
-Edit Grub file and change `GRUB_CMDLINE_LINUX` as shown below:
+If it is not `eth0` then to change interface to `eth0`, follow the following steps:
 
 ```bash
-sudo vim /etc/default/grub
+wget https://raw.githubusercontent.com/Click2Cloud-Centaurus/Documentation/main/deployment_scripts/enable_persistent_naming.sh
+sudo bash enable_persistent_naming.sh
 ```
 
-Change line `GRUB_CMDLINE_LINUX=""` to `GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0"`
-
-After changing configuration, run following command
+### Step 3: Update kernel and install mizar dependencies
+Check kernel, run following command
 
 ```bash
-sudo update-grub
+uname -a
 ```
 
-Edit network manager yaml
-
-```
-# Edit or Create if not exists
-# Please give proper file name present /etc/netplan location
-sudo vim /etc/netplan/00-installer-config.yaml 
-```
-It should have content like shown below
-```text
-network:
-  version: 2
-  ethernets:
-          enXXXX:
-            addresses: [private-ip-address/prefix]
-            gateway4: default-gateway-ip
-            nameservers:
-              addresses: [dns-ip]
-```
-
-Change the interface name ```enXXXX``` to ```eth0```.
-
-```text
-network:
-  version: 2
-  ethernets:
-          eth0:
-            addresses: [private-ip-address/prefix]
-            gateway4: default-gateway-ip
-            nameservers:
-              addresses: [dns-ip]
-```
-
-and then apply configuration and reboot your system
-
+1. If kernel version is below `5.6.0-rc2` then download```kernelupdate.sh```, else goto step 3.2
 ```bash
-sudo netplan apply && sudo reboot
+wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/kernelupdate.sh
 ```
+2. Install mizar dependencies and update Kernel ( if applicable ) download and run:
+```bash
+wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/bootstrap.sh
+sudo bash bootstrap.sh
+```
+
+### Step 4: Arktos and Mizar Deployment
 
 verify your interface name and IP by running:
 ```bash
 ip a
 ```
-it should contain interface name as ```eth0``` and valid IP address
+Currently, for mizar CNI to work properly, it should contain interface name as ```eth0``` and valid IP address. If not, then perform **step 2** again.
 ```text
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -111,25 +83,6 @@ it should contain interface name as ```eth0``` and valid IP address
        valid_lft forever preferred_lft forever
     inet6 fe80::250:56ff:feaf:b541/64 scope link
 ```
-
-### Step 3: Update kernel and install mizar dependencies
-To check kernel, run following command
-
-```bash
-uname -a
-```
-
-To install mizar dependencies and update Kernel download and run:
-If it is `5.6.0-rc2` then you can skip downloading ```kernelupdate.sh```
-```bash
-wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/kernelupdate.sh
-```
-```bash
-wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/bootstrap.sh
-sudo bash bootstrap.sh
-```
-
-### Step 4: Arktos and Mizar Deployment
 1. Install the arktos and dependencies
 
 ```bash
@@ -235,7 +188,7 @@ You also want make sure the default kubernetes bridge network configuration file
 ```bash
 sudo ls /etc/cni/net.d
 sudo rm /etc/cni/net.d/bridge.conf # if bridge.conf is present else skip this command
-kubectl apply -f https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/etc/deploy/deploy.mizar.yaml
+kubectl apply -f https://raw.githubusercontent.com/Click2Cloud-Centaurus/mizar/grpcio-fix/etc/deploy/deploy.mizar.yaml
 ```
 
 6. Verify Mizar pods i.e. mizar-operator and mizar-daemon pods are in running state, for that run:

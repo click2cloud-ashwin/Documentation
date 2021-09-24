@@ -4,7 +4,6 @@
 
 echo Setup: Install go \(currently limited to version 1.13.9\)
 
-sudo apt-get update -y && sudo apt-get dist-upgrade -y
 sudo apt-get install build-essential -y -q
 
 cd /tmp
