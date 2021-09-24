@@ -1,6 +1,6 @@
 # How to Setup a multi-node Arktos cluster and Mizar using custom image in GCE
 
-Use cases for a Arktos multi-node dev cluster on GCE are to test features in cloud deployments. This document outlines the steps to deploy such a cluster on AWS, and to deploy for kubemark based performance testing.
+Use cases for a Arktos multi-node dev cluster on GCE are to test features in cloud deployments. This document outlines the steps to deploy such a cluster on GCE
 
 ## Prerequisites
 
