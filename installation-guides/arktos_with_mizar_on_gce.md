@@ -74,7 +74,7 @@ After changing configuration, run following command
 Edit network manager yaml
 
 ```
-vi /etc/netplan/01-network-manager-all.yaml 
+sudo vi /etc/netplan/01-network-manager-all.yaml 
 #Please give proper file name present /etc/netplan location
 ```
 It should have content like shown below or simply replace `ensXX` with `eth0`
@@ -96,7 +96,7 @@ network:
 and then apply configuration before reboot your system
 
 ``
-sudo netplan generate && netplan apply && sudo reboot
+sudo netplan generate && sudo netplan apply && sudo reboot
 ``
 
 3. Then create an image using same instance from console, use that image 
@@ -104,9 +104,9 @@ sudo netplan generate && netplan apply && sudo reboot
 
 1. Clone arktos repository
 ```bash
-mkdir -p /root/go/src/k8s.io
+sudo mkdir -p /root/go/src/k8s.io
 cd /root/go/src/k8s.io
-git clone -b  kube-up-mizar https://github.com/Click2Cloud-Centaurus/arktos.git
+sudo git clone -b  kube-up-mizar https://github.com/Click2Cloud-Centaurus/arktos.git
 
 ```
 2. Build the Arktos release binaries from a bash terminal from your Arktos source root directory.
