@@ -29,9 +29,9 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 ```bash
 sudo wget https://storage.googleapis.com/golang/go1.15.4.linux-amd64.tar.gz
 sudo tar -C /usr/local -xzf go1.15.4.linux-amd64.tar.gz
-sudo echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
-sudo echo 'export GOPATH=$HOME/gopath' >> /etc/profile
-sudo source /etc/profile
+sudo echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+sudo echo 'export GOPATH=$HOME/gopath' >> $HOME/.profile
+source $HOME/.profile
 ```
 
 ### Create custom image
