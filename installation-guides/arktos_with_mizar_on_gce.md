@@ -7,18 +7,18 @@ Use cases for a Arktos multi-node dev cluster on GCE are to test features in clo
 1. You will need an GCP account, and [gcloud](https://cloud.google.com/sdk/docs/install#deb) configured in your bash profile. Please refer to gcloud configuration documentation.
 ### Install gcloud
 ```bash
-echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+sudo echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 sudo apt-get install apt-transport-https ca-certificates gnupg -y -q
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+sudo curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
-gcloud init # Provide credentials
+sudo gcloud init # Provide credentials
 ```
 2. You will need golang, docker, and build-essential installed.
 
 ### Install Docker 
 ```bash
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo \
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+sudo echo \
   "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update -y
@@ -27,11 +27,11 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 
 ### Install Golang
 ```bash
-wget https://storage.googleapis.com/golang/go1.15.4.linux-amd64.tar.gz
-tar -C /usr/local -xzf go1.15.4.linux-amd64.tar.gz
-echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
-echo 'export GOPATH=$HOME/gopath' >> /etc/profile
-source /etc/profile
+sudo wget https://storage.googleapis.com/golang/go1.15.4.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.15.4.linux-amd64.tar.gz
+sudo echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
+sudo echo 'export GOPATH=$HOME/gopath' >> /etc/profile
+sudo source /etc/profile
 ```
 
 ### Create custom image
@@ -59,8 +59,8 @@ Here network interface should be `eth0`, if it is `eth0` then skip following sec
 
 If it is not `eth0` then to change interface to eth0 follow following steps
 ```bash
-apt remove ifupdown
-dmesg | grep -i eth #this will give information
+sudo apt remove ifupdown
+sudo dmesg | grep -i eth #this will give information
 ```
 Edit Grub file and change `GRUB_CMDLINE_LINUX` as shown below:
 
@@ -112,8 +112,8 @@ git clone -b  kube-up-mizar https://github.com/Click2Cloud-Centaurus/arktos.git
 2. Build the Arktos release binaries from a bash terminal from your Arktos source root directory.
 ```bash
 cd /root/go/src/k8s.io/arktos
-make clean
-make quick-release
+sudo make clean
+sudo make quick-release
 ```
 
 3. Edit `cluster/gce/config-default.sh` and change following parameters
@@ -127,7 +127,7 @@ make quick-release
 
 4. To deploy the admin cluster in GCE, run kube-up script as follows:
 ```bash
-./cluster/kube-up.sh
+sudo ./cluster/kube-up.sh
 ```
 kube-up script displays the admin cluster details upon successful deployment.
 
@@ -142,5 +142,5 @@ kube-up script displays the admin cluster details upon successful deployment.
 
 1. To terminate admin cluster, run the following:
 ```bash
-./cluster/kube-down.sh
+sudo ./cluster/kube-down.sh
 ```
