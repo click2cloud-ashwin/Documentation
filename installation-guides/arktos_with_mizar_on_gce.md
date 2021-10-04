@@ -123,6 +123,7 @@ make quick-release
    * `KUBE_GCE_NODE_PROJECT`: provide project name
    * `KUBE_CONTAINER_RUNTIME`: change to `containerd`
    * `NETWORK_POLICY_PROVIDER`: `mizar` or `flannel`
+   * In `INSTANCE_PREFIX`="${KUBE_GCE_INSTANCE_PREFIX:-kubernetes}" , please replace `kubernetes` with some other custom cluster name
 
 4. To deploy the admin cluster in GCE, run kube-up script as follows:
 ```bash
