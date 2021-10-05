@@ -1,6 +1,6 @@
 # Setup a multi-node Arktos cluster using Ubuntu or custom image on GCE
 
-This document outlines the steps to deploy arktos cluster on GCE.
+This document outlines the steps to deploy arktos cluster on GCE from remote workstation machine. User will need to run following steps on workstation machine (the recommended instance size should be atleast ```16 CPU and 32GB RAM``` and the storage size should be ```150GB``` or more)
 
 ### Prerequisites
 
@@ -13,7 +13,7 @@ curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyr
 sudo apt-get update -y && sudo apt-get install make google-cloud-sdk -y
 gcloud init # Provide credentials
 ```
-2. User will need golang, docker, and build-essential installed to create binaries and docker images.
+2. User will need docker and golang to create binaries and docker images.
 
 #### Install Docker 
 ```bash
@@ -63,16 +63,16 @@ sudo ./cluster/kube-up.sh
 ```
 kube-up script displays the admin cluster details upon successful deployment.
 
-## Using the admin cluster and kubemark cluster
+## Using the arktos cluster using kubectl
 
-1. To use admin cluster, just use kubectl. The build node is setup with the config to access the admin cluster. e.g:
+To use arktos cluster, use kubectl utility. The build node is setup with the config to access the arktos cluster. e.g:
 ```bash
 sudo ./cluster/kubectl.sh get nodes -o wide
 ```
 
 ## Arktos cluster tear-down
 
-1. To terminate admin cluster, run the following:
+To terminate arktos cluster, run the following:
 ```bash
 sudo ./cluster/kube-down.sh
 ```
