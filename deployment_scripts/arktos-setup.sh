@@ -2,19 +2,20 @@
 
 ####################
 
-echo Setup: Install go \(currently limited to version 1.13.9\)
+echo Setup: Install go
 
-sudo apt-get install build-essential -y -q
+sudo apt-get update && sudo apt-get install build-essential -y -q
 
 cd /tmp
-wget https://dl.google.com/go/go1.13.9.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.13.9.linux-amd64.tar.gz
-rm -rf go1.13.9.linux-amd64.tar.gz
+wget https://dl.google.com/go/go1.15.15.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.15.15.linux-amd64.tar.gz
+rm -rf go1.15.15.linux-amd64.tar.gz
 
 ####################
 
 echo Setup: Install bazel
 
+sudo apt-get update 
 sudo apt install g++ unzip zip -y -q
 sudo apt-get install openjdk-8-jdk -y -q
 cd /tmp
@@ -28,7 +29,7 @@ echo Setup: Enlist arktos
 
 cd ~
 git clone https://github.com/CentaurusInfra/arktos.git ~/go/src/k8s.io/arktos
-cd ~/go/src/k8s.io/arktos && git checkout v0.8
+cd ~/go/src/k8s.io/arktos && git checkout v0.9
 cd ~/go/src/k8s.io
 ln -s ./arktos kubernetes
 
@@ -46,7 +47,7 @@ git tag v1.15.0
 
 echo Setup: Install Docker
 
-sudo apt -y install docker.io
+sudo apt-get update && sudo apt -y install docker.io
 sudo gpasswd -a $USER docker
 
 ####################
@@ -75,6 +76,7 @@ sudo systemctl restart containerd
 
 echo Setup: Install miscellaneous
 
+sudo apt-get update 
 sudo apt install awscli -y -q
 sudo apt install jq -y -q
 
@@ -140,6 +142,7 @@ sudo sysctl -p
 IP_ADDR=$(hostname -I | awk '{print $1}')
 HOSTNAME=$(hostname)
 sudo sed -i '2s/.*/'$IP_ADDR' '$HOSTNAME'/' /etc/hosts
+sudo sed -i '0,/RANDFILE/{s/RANDFILE/\#&/}' /etc/ssl/openssl.cnf
 sudo rm -f /etc/resolv.conf
 sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
 

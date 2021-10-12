@@ -17,50 +17,27 @@ If you are using On-Premise, the recommended instance size is ```8 CPU```, ```16
 ## Prerequisites
 ### Step 1: Install Dependencies
 ```bash
-sudo apt-get install -y ca-certificates curl wget apt-transport-https gnupg lsb-release vim
+sudo apt-get update && sudo apt-get install -y ca-certificates curl wget vim git-all apt-transport-https gnupg lsb-release
 ```
 ### Step 2: Check Network Interface
 ```bash
 ip a
 ```
 
-```text
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 00:50:56:af:b5:41 brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.222/24 brd 192.168.1.255 scope global eth0
-       valid_lft forever preferred_lft forever
-    inet6 fe80::250:56ff:feaf:b541/64 scope link
-```
-Currently, for mizar CNI to work properly, here network interface should be `eth0`, if it is `eth0` then skip following section and go to step 3
+Currently, for mizar CNI to work properly, here network interface should be `eth0`, if it is `eth0` then skip following section and go to **step 3**
 
-If it is not `eth0` then to change interface to `eth0`, follow the following steps:
+If it is not `eth0` then follow the following steps:
 
 ```bash
 wget https://raw.githubusercontent.com/Click2Cloud-Centaurus/Documentation/main/deployment_scripts/enable_persistent_naming.sh
 sudo bash enable_persistent_naming.sh
 ```
 
-### Step 3: Update kernel and install mizar dependencies
-Check kernel, run following command
-
-```bash
-uname -a
-```
-
-1. If kernel version is below `5.6.0-rc2` then download```kernelupdate.sh```, else goto step 3.2
+### Step 3: Update kernel
+If kernel version is below `5.6.0-rc2` then download and run ```kernelupdate.sh```
 ```bash
 wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/kernelupdate.sh
-```
-2. Install mizar dependencies and update Kernel ( if applicable ) download and run:
-```bash
-wget https://raw.githubusercontent.com/CentaurusInfra/mizar/dev-next/bootstrap.sh
-sudo bash bootstrap.sh
+sudo bash kernelupdate.sh
 ```
 
 ### Step 4: Arktos and Mizar Deployment
@@ -70,19 +47,7 @@ verify your interface name and IP by running:
 ip a
 ```
 Currently, for mizar CNI to work properly, it should contain interface name as ```eth0``` and valid IP address. If not, then perform **step 2** again.
-```text
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
-    link/ether 00:50:56:af:b5:41 brd ff:ff:ff:ff:ff:ff
-    inet 192.168.1.222/24 brd 192.168.1.255 scope global eth0
-       valid_lft forever preferred_lft forever
-    inet6 fe80::250:56ff:feaf:b541/64 scope link
-```
+
 1. Install the arktos and dependencies
 
 ```bash
@@ -116,10 +81,26 @@ cd $HOME/go/src/k8s.io/arktos
 ./hack/arktos-up.sh
 ```
 
-If you see this warning ```Waiting for node ready at api server``` for more than 10 times, then run:
+If you see this warning ```Waiting for node ready at api server``` for long, then check the conf directory:
+
+It should contain only one directory `net.d`, remove all other directories:
+```bash
+sudo ls /etc/cni/
+```
+
+**Output**
+```text
+net.d  net.d_202110120942
+```
 
 ```bash
-sudo systemctl restart containerd.service
+sudo rm -rf /etc/cni/net.d_*
+sudo ls /etc/cni/
+```
+
+**Output**
+```text
+net.d
 ```
 
 Then wait till you see:
@@ -171,24 +152,12 @@ clusters:
 ```
 Leave the arktos-network-controller termainal running and open a new terminal to install CNI plugin;
 
-Now, the default network of system tenant should be Ready.
-```bash
-./cluster/kubectl.sh get net
-```
-Then you will you see:
-```text
-NAME      TYPE   VPC                         PHASE   DNS
-default   mizar  system-default-network      Ready   10.0.0.207
-```
-
 You also want make sure the default kubernetes bridge network configuration file is deleted:
 
 5. To deploy Mizar, run:
 
 ```bash
-sudo ls /etc/cni/net.d
-sudo rm /etc/cni/net.d/bridge.conf # if bridge.conf is present else skip this command
-kubectl apply -f https://raw.githubusercontent.com/Click2Cloud-Centaurus/mizar/grpcio-fix/etc/deploy/deploy.mizar.yaml
+sudo rm -rf /etc/cni/net.d/bridge.conf && kubectl apply -f https://raw.githubusercontent.com/Click2Cloud-Centaurus/mizar/grpcio-fix/etc/deploy/deploy.mizar.yaml
 ```
 
 6. Verify Mizar pods i.e. mizar-operator and mizar-daemon pods are in running state, for that run:
