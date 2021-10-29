@@ -70,7 +70,7 @@ Currently, for mizar CNI to work properly, it should contain interface name as `
     inet6 fe80::250:56ff:feaf:b541/64 scope link
 ```
 
-**1.** Install dependencies and setup kubernetes
+**A.** Install dependencies and setup kubernetes
 
 ```bash
 sudo apt-get install -y ca-certificates curl apt-transport-https gnupg lsb-release vim
@@ -79,7 +79,89 @@ sudo apt-get install -y ca-certificates curl apt-transport-https gnupg lsb-relea
 wget https://raw.githubusercontent.com/Click2Cloud-Centaurus/Documentation/main/deployment_scripts/k8s-setup.sh
 sudo bash k8s-setup.sh
 ```
-**2.** Run kubernetes cluster
+
+#### Selecting runtime ( docker / containerd )
+
+#### i. docker
+
+Configure the Docker daemon, in particular to use systemd for the management of the container’s cgroups.
+
+```bash
+sudo mkdir /etc/docker
+
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+"exec-opts": ["native.cgroupdriver=systemd"],
+"log-driver": "json-file",
+"log-opts": {
+"max-size": "100m"
+},
+"storage-driver": "overlay2"
+}
+EOF
+````
+Restart Docker and enable on boot:
+
+```bash
+sudo systemctl enable docker
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+
+#### ii. containerd
+
+Configure prerequisites:
+
+```bash
+cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+overlay
+br_netfilter
+EOF
+```
+
+```bash
+sudo modprobe overlay
+sudo modprobe br_netfilter
+```
+Setup required sysctl params, these persist across reboots.
+```bash
+cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.ipv4.ip_forward                 = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+EOF
+```
+#### Apply sysctl params without reboot
+```bash
+sudo sysctl --system
+```
+Configure containerd:
+
+```bash
+sudo mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml
+```
+Restart containerd:
+
+```bash
+sudo systemctl restart containerd
+```
+Using the systemd cgroup driver
+To use the systemd cgroup driver in /etc/containerd/config.toml with runc, set
+
+```text
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+...
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+    SystemdCgroup = true
+```
+If you apply this change make sure to restart containerd again:
+
+```bash
+sudo systemctl restart containerd
+```
+
+**B.** Run kubernetes cluster
 ```bash
 sudo kubeadm init --apiserver-advertise-address=$(hostname -I | awk '{print $1}') --pod-network-cidr=20.0.0.0/8
 ```
@@ -138,7 +220,7 @@ Now you your single node kubernetes cluster should ready to use.
 # Setup Multi-Node Kubernetes with Mizar
 
 ## Installation Steps
-1. Before begin, **please complete step 1,2 ( if applicable ) and 3.1** from the **on all the nodes** ( master and worker ) before proceeding.
+1. Before begin, **please complete step 1,2 ( if applicable ) and 3.A** from the **on all the nodes** ( master and worker ) before proceeding.
    
 **Note: Make sure that your ```/etc/hosts``` file contains master node and worker nodes entries.**
 
