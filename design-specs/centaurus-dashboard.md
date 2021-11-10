@@ -31,7 +31,7 @@ To add following features in Centaurus Portal(Dashboard UI)
 
 ## Features Details
 ___
-#####User Management
+##### User Management
 
 ![](img_3.png)
 
