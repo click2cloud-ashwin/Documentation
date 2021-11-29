@@ -125,7 +125,7 @@ TBA
 
 ### Developement Portal Link
 
-***Link***: [Centaurus Portal](https://114.143.207.107:30001/)
+***Link***: [Centaurus Portal](https://35.209.119.154:30001/#/login)
 
 ***Username***: `admin`
 
