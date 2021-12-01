@@ -115,10 +115,36 @@ TBD
 ![img_9.png](img_9.png)
 
 ##### 5. Cluster Monitoring
-TBA
+* **Cluster Partitions***
+* **Cluster Partition Health**
+* **Cluster Partition Resource Utilization**
 
 ##### 6. Tenant Monitoring
-TBA
+* **Tenant Partitions**
+* **Tenant Partition Health**
+* **Tenant Partition Resource Utilization**
+* **Tenant Partition Quota**
+* **Tenant Partition Namespace**
+* **Tenant Partition Service**
+* **Tenant Partition Deployment**
+* **Tenant Partition Pod**
+* **Tenant Partition ReplicaSet**
+* **Tenant Partition StatefulSet**
+* **Tenant Partition DaemonSet**
+* **Tenant Partition Job**
+* **Tenant Partition CronJob**
+* **Tenant Partition ReplicationController**
+* **Tenant Partition PersistentVolumeClaim**
+* **Tenant Partition PersistentVolume**
+* **Tenant Partition StorageClass**
+* **Tenant Partition Secret**
+* **Tenant Partition ConfigMap**
+* **Tenant Partition ServiceAccount**
+* **Tenant Partition Role**
+* **Tenant Partition RoleBinding**
+* **Tenant Partition ClusterRole**
+
+
 
 ##### 7. Managing Quotas and namespaces
 TBA
