@@ -81,15 +81,28 @@ At the time of a tenant creation by *Cluster admin*, a default tenant admin user
 
 ![](img_4.png)
 #### 3. Create Tenant User Operation
-**TBD**
+Step 1: Create a tenant
+
+Step 2: Create a Role, Service account and Rolebinding
+
+Step 3: Get token for the user (later it will be mapped with username password)
+
 
 #### 4. Resource Monitoring
 * Cluster admin can monitor health checks & resource utilizations for each and every partition
 * Tenant admin can monitor health checks & resource utilizations for its own respective tenant within the Centaurus cluster
 * Tenant user can monitor health checks & resource utilizations according to RBAC
 
-###### API Used
-TBD
+###### API to be developed in Dashboard backend
+* Create Tenant
+* Delete Tenant
+* Create Roles
+* Create Rolebinding
+* List Tenant
+* Create namespace for specific tenant
+* Delete namespace for specific tenant
+* Create Service Account
+* Create Node
 
 ### Detailed Design
 ##### 1. Login Page
@@ -115,39 +128,16 @@ TBD
 ![img_9.png](img_9.png)
 
 ##### 5. Cluster Monitoring
-* **Cluster Partitions***
-* **Cluster Partition Health**
-* **Cluster Partition Resource Utilization**
+* It will show details of all tenants
+* It will show details of all nodes and resources
 
 ##### 6. Tenant Monitoring
-* **Tenant Partitions**
-* **Tenant Partition Health**
-* **Tenant Partition Resource Utilization**
-* **Tenant Partition Quota**
-* **Tenant Partition Namespace**
-* **Tenant Partition Service**
-* **Tenant Partition Deployment**
-* **Tenant Partition Pod**
-* **Tenant Partition ReplicaSet**
-* **Tenant Partition StatefulSet**
-* **Tenant Partition DaemonSet**
-* **Tenant Partition Job**
-* **Tenant Partition CronJob**
-* **Tenant Partition ReplicationController**
-* **Tenant Partition PersistentVolumeClaim**
-* **Tenant Partition PersistentVolume**
-* **Tenant Partition StorageClass**
-* **Tenant Partition Secret**
-* **Tenant Partition ConfigMap**
-* **Tenant Partition ServiceAccount**
-* **Tenant Partition Role**
-* **Tenant Partition RoleBinding**
-* **Tenant Partition ClusterRole**
-
-
+* It will show details of all resources within a tenant
 
 ##### 7. Managing Quotas and namespaces
-TBA
+* It will show quotas for a tenant
+* Cluster admin can assign quota to a tenant
+* Cluster admin can update the quota assigned to a tenant
 
 ### Developement Portal Link
 
