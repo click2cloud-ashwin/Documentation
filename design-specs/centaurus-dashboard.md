@@ -9,11 +9,12 @@ To add following features in the Centaurus Portal(Dashboard UI)
 * Manage Centaurus Cluster
 * Enable user to login using username and password (instead of token)
 * Tenant management
+* User management
 * Monitoring
 * Managing Quotas and namespaces
 
 ### Non-goals
-* User management
+TBA
 
 ## Background
 Cluster admin can perform following operation using CLI (i.e. using `kubectl` utility)
@@ -40,7 +41,7 @@ Cluster admin can perform following operation using Dashboard UI:
 * Create Tenant
 * Delete Tenant
 * List Tenant
-* Monitor health checks & resource utilizations for each and every partition
+* Monitor health checks & resource utilization for each and every partition
 * Reconfigure Cluster Partitions
 * Create RBAC roles and role bindings for other fine-grained cluster admins
 
@@ -50,7 +51,7 @@ Cluster admin can perform following operation using Dashboard UI:
 ### Tenant admin profile
 Tenant admin can perform following operation using Dashboard UI:
 * Creating other fine-grained tenant admins and regular tenant users
-* Monitor health checks & resource utilizations for its own respective tenant within the Centaurus cluster
+* Monitor health checks & resource utilization for its own respective tenant within the Centaurus cluster
 * List/create/delete users
 * Create RBAC roles and role bindings in the tenant
 * Manage namespace quotas for a tenant
@@ -89,52 +90,66 @@ Step 3: Get token for the user (later it will be mapped with username password)
 
 
 #### 4. Resource Monitoring
-* Cluster admin can monitor health checks & resource utilizations for each and every partition
-* Tenant admin can monitor health checks & resource utilizations for its own respective tenant within the Centaurus cluster
-* Tenant user can monitor health checks & resource utilizations according to RBAC
+* Cluster admin can monitor health checks & resource utilization for each and every partition
+* Tenant admin can monitor health checks & resource utilization for its own respective tenant within the Centaurus cluster
+* Tenant user can monitor health checks & resource utilization according to RBAC
 
 ###### API to be developed in Dashboard backend
 * Create Tenant
 * Delete Tenant
+* Create Cluster Roles
 * Create Roles
 * Create Rolebinding
-* List Tenant
 * Create namespace for specific tenant
 * Delete namespace for specific tenant
 * Create Service Account
 * Create Node
 
 ### Detailed Design
+
 ##### 1. Login Page
 
 ![](img_5.png)
 
-##### 2. Overview Page
+##### 2. Cluster Monitoring
+* List of all the partitions available
 
 ![](img_6.png)
 
-##### 3. Tenant Operation
-***List Tenants***
+* It will show details of all nodes and resources
 
 ![](img_7.png)
 
-***Create Tenant***
+* It will show details of all tenants
 
 ![](img_8.png)
 
-##### 4. Access Control
-***Roles and Cluster roles***
 
-![img_9.png](img_9.png)
-
-##### 5. Cluster Monitoring
-* It will show details of all tenants
-* It will show details of all nodes and resources
-
-##### 6. Tenant Monitoring
+![](img_9.png)
+  
+##### 3. Tenant Monitoring
 * It will show details of all resources within a tenant
 
-##### 7. Managing Quotas and namespaces
+![](img_10.png)
+
+##### 4. Tenant Operation
+***List Tenants***
+
+![](img_11.png)
+***Create Tenant***
+
+![](img_12.png)
+
+***Delete Tenant***
+
+![](img_13.png)
+
+##### 5. Access Control
+***Roles and Cluster roles***
+
+![](img_14.png)
+
+##### 6. Managing Quotas and namespaces
 * It will show quotas for a tenant
 * Cluster admin can assign quota to a tenant
 * Cluster admin can update the quota assigned to a tenant
