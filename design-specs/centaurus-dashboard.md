@@ -156,7 +156,7 @@ Step 3: Get token for the user (later it will be mapped with username password)
 
 ### Developement Portal Link
 
-***Link***: [Centaurus Portal](https://35.209.119.154:30001/#/login)
+***Link***: [Centaurus Portal](https://35.209.119.154:9445/#/login)
 
 ***Username***: `admin`
 
