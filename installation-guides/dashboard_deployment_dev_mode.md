@@ -40,7 +40,7 @@ npm install --global gulp
 2. Clone the repository.
 
 ```bash
-git clone https://github.com/Click2Cloud-Centaurus/dashboard.git $HOME/dashboard
+git clone https://github.com/Click2Cloud-Centaurus/dashboard.git $HOME/dashboard -b dev-scale-out
 cd $HOME/dashboard
 ```
 
@@ -62,14 +62,43 @@ npm ci --unsafe-perm
 output of above command
 ```text
 NAME               STATUS   ROLES    AGE   VERSION
-centaurus-master   Ready    <none>   30m   v0.8.0
+centaurus-master   Ready    <none>   30m   v0.9.0
 ```
-5. Create link for kubeconfig file using following command.
+5. Create a link for kubeconfig file using following command.
+
+Run following command, if cluster is created using **arktos-up** script
 ```bash
 ln -snf /var/run/kubernetes/admin.kubeconfig $HOME/.kube/config
 ```
+Run following command, if cluster is created using **kube-up** script
+```bash
+ln -snf $HOME/go/src/k8s.io/arktos/cluster/kubeconfig-proxy $HOME/.kube/config
+```
 
-6. Update the .npmrc and angular.json file in the dashboard directory for bind address and port.
+For scale-out, 
+convert the kubeconfig files depending on the architecture `e.g. 2RP, 2TP`, to **Base64Encoded** format one by one and export them as 
+
+```bash
+export RP1_CONFIG=<encoded_kubeconfig>
+export TP1_CONFIG=<encoded_kubeconfig>
+export RP2_CONFIG=<encoded_kubeconfig>
+export TP2_CONFIG=<encoded_kubeconfig>
+```
+
+6.Deploy postgres container
+```bash
+docker run --name postgresql-container -p <db_port>:5432 -e POSTGRES_PASSWORD=<db_password> -d <postgres_db>
+```
+
+```bash
+export POSTGRES_DB=<postgres_db>
+export DB_HOST=<host_IP_address>
+export DB_PORT=<db_port>
+export POSTGRES_USER=<postgres_username>
+export POSTGRES_PASSWORD=<password>
+```
+
+7. Update the .npmrc and angular.json file in the dashboard directory for bind address and port.
 
 ```bash
 cd $HOME/dashboard
@@ -78,52 +107,24 @@ sudo sed -i 's/8080/9443/g' $HOME/dashboard/angular.json
 sudo sed -i '0,/RANDFILE/{s/RANDFILE/\#&/}' /etc/ssl/openssl.cnf
 echo 'kubernetes-dashboard:bind_address = 0.0.0.0 '>> $HOME/dashboard/.npmrc 
 ```
-7. To run dashboard:
+
+8. To run dashboard:
 
 ```bash
 npm run start:https --kubernetes-dashboard:kubeconfig=$HOME/.kube/config
 ```
-Dashboard will be accessible on `https://<machine_ip>:9443`
+Leave the terminal running.
 
 ## To access the dashboard
 
-From arktos directory run following commands
+Dashboard will be accessible on `https://<machine_ip>:9443`
 
-Create the dashboard service account
-```bash
-./cluster/kubectl.sh create serviceaccount dashboard-admin -n kube-system
-```
-This will create a service account named dashboard-admin in the kube-system namespace
+`<machine_ip>`, where `npm run` command is running.
 
-Next bind the dashboard-admin-service-account service account to the cluster-admin role
+Default credentials are as follows:
 
-```bash
-./cluster/kubectl.sh create clusterrolebinding dashboard-admin --clusterrole=cluster-admin --serviceaccount=kube-system:dashboard-admin
-```
-When we created the dashboard-admin service account Kubernetes also created a secret for it.
+username: `centaurus`
 
-Use kubectl describe to get the access token from the secret:
-
-```bash
-./cluster/kubectl.sh describe secrets -n kube-system $(kubectl -n kube-system get secret | awk '/dashboard-admin/{print $1}')
-```
-
-```text
-Name:         dashboard-admin-token-47hw5
-Namespace:    kube-system
-Labels:       <none>
-Annotations:  kubernetes.io/service-account.name: dashboard-admin
-              kubernetes.io/service-account.uid: f949c124-6950-43a8-afb4-8de6cadf43a2
-
-Type:  kubernetes.io/service-account-token
-
-Data
-====
-namespace:  7 bytes
-token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRhc2hib2FyZC1hZG1pbi1zYS10b2tlbi00N2h3NSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJkYXNoYm9hcmQtYWRtaW4tc2EiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJmOTQ5YzEyNC02OTUwLTQzYTgtYWZiNC04ZGU2Y2FkZjQzYTIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3RlbmFudCI6InN5c3RlbSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmRhc2hib2FyZC1hZG1pbi1zYSJ9.LWk_SaSJ-zI4GCooTh7kK8oYWK0bO48K-OUbOLGvERVoY8SzaYOgZswHJ-5_lmoXxigIx8kJ2OMzZXZW-73dnUCub9XgWVX587iYcvMlGBazPQnZ13uOjHHhPwFCtCKQVBIrdhg2z7_yxOwhaoqnSg1hZ32eyRLrlTq0wtSPsBTLsWVVpcW61_WFkBVfGXiIrJISUMfvW7DYInJZIpe4-qcGoaV-EfgMcSXur
-```
-Copy the token and enter it into the token field on the Kubernetes dashboard login page.
-
-We can now access the Kubernetes dashboard and will land on the overview page for the default namespace. 
+password: `Centaurus@123`
 
 
