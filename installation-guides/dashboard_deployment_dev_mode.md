@@ -60,9 +60,10 @@ Set config directory path:
 export KUBECONFIG_DIR=$(pwd) # default "/opt/centaurus-configs"
 ```
 
-To configure default config path manually:
+To change default kubeconfig path(default is `${HOME}/.kube/config`):
 ```bash
 export DEFAULT_KUBECONFIG=$HOME/go/src/k8s.io/arktos/cluster/kubeconfig-proxy
+echo 'kubernetes-dashboard:kubeconfig ='$DEFAULT_KUBECONFIG' '>> $HOME/dashboard/.npmrc
 ```
 Note: Default file is `$HOME/.kube/config` or pass the argument `--kubeconfig` with path while running `npm run start` command.
 
