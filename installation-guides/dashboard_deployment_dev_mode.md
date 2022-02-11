@@ -71,7 +71,8 @@ Place all your configs in above config directory or in `/opt/centaurus-configs`
 If you want to use environment variables, set the following parameters
 
 
-```export USE_ENV_CONFIGS=true # Default value: false
+```bash
+export USE_ENV_CONFIGS=true # Default value: false
 export TP1_CONFIG= base64 encoded config
 export TP2_CONFIG= base64 encoded config
 export RP1_CONFIG= base64 encoded config
