@@ -2,60 +2,38 @@
 
 This document describes how to setup your development environment.
 
-1. Install the prerequisites
-   For a fully manual install, execute the following lines to first clone the `nvm` repository into `$HOME/.nvm`, and then load `nvm`:
+1. Preparation
 
-```bash
-export NVM_DIR="$HOME/.nvm" && (
-  git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
-  cd "$NVM_DIR"
-  git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
-) && \. "$NVM_DIR/nvm.sh"
-```
+Make sure the following software is installed and added to the $PATH variable:
 
-Now add these lines to your `~/.bashrc`, `~/.profile`, or `~/.zshrc` file to have it automatically sourced upon login:
-(you may have to add to more than one of the above files)
-
-```bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-```
-Note: After adding above lines to profile, run the `source` command with respective bash profile file.
-
-Install the node version 12
-```bash
-nvm install 12
-```
-
-Install node dependencies
-```bash
-sudo apt install nodejs -y
-sudo apt install npm -y
-sudo apt install build-essential ruby-full node-typescript -y
-npm install --global typescript
-npm install --global gulp-cli
-npm install --global gulp
-```
+* Curl 7+
+* Git 2.13.2+
+* Docker 1.13.1+ ([installation manual](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/))
+* Golang 1.13.9+ ([installation manual](https://golang.org/dl/))
+    * Dashboard uses `go mod` for go dependency management, so enable it with running `export GO111MODULE=on`.
+* Node.js 12 and npm 6 ([installation with nvm](https://github.com/creationix/nvm#usage))
+* Gulp.js 4+ ([installation manual](https://github.com/gulpjs/gulp/blob/master/docs/getting-started/1-quick-start.md))
 
 2. Clone the repository.
-
+ 
 ```bash
 git clone https://github.com/Click2Cloud-Centaurus/dashboard.git $HOME/dashboard -b dev-scale-out
 cd $HOME/dashboard
 ```
 
-3. Install the dashboard project dependencies:
-```bash
+3. Install the dependencies:
+
+```
 npm ci
 ```
 
 If you are running commands with root privileges set `--unsafe-perm flag`:
 
-```bash
+```
 npm ci --unsafe-perm
 ```
 
-4. Make sure your arktos cluster is running, run the command from arktos directory.
+4. Make sure your cluster is running, run the command from arktos directory.
 ```bash
 ./cluster/kubectl.sh get nodes -A
 ```
@@ -66,30 +44,44 @@ centaurus-master   Ready    <none>   30m   v0.9.0
 ```
 5. Create a link for kubeconfig file using following command.
 
-Run following command, if cluster is created using **arktos-up** script
+If cluster is created using **arktos-up** script, run following command:
 ```bash
 ln -snf /var/run/kubernetes/admin.kubeconfig $HOME/.kube/config
 ```
-Run following command, if cluster is created using **kube-up** script
+If cluster is created using **kube-up** script, run following command:
 ```bash
 ln -snf $HOME/go/src/k8s.io/arktos/cluster/kubeconfig-proxy $HOME/.kube/config
 ```
 
-For scale-out, 
-convert the kubeconfig files depending on the architecture `e.g. 2RP, 2TP`, to **Base64Encoded** format one by one and export them as 
+**For scale-out architecture**,
+Set config directory path:
 
 ```bash
-export RP1_CONFIG=<encoded_kubeconfig>
-export TP1_CONFIG=<encoded_kubeconfig>
-export RP2_CONFIG=<encoded_kubeconfig>
-export TP2_CONFIG=<encoded_kubeconfig>
+export KUBECONFIG_DIR=$(pwd) # default "/opt/centaurus-configs"
 ```
 
-6.Deploy postgres container
+To configure default config path manually:
 ```bash
-docker run --name postgresql-container -p <db_port>:5432 -e POSTGRES_PASSWORD=<db_password> -d <postgres_db>
+export DEFAULT_KUBECONFIG=$HOME/go/src/k8s.io/arktos/cluster/kubeconfig-proxy
+```
+Note: Default file is `$HOME/.kube/config` or pass the argument `--kubeconfig` with path while running `npm run start` command.
+
+Place all your configs in above config directory or in `/opt/centaurus-configs`
+
+If you want to use environment variables, set the following parameters
+
+
+```export USE_ENV_CONFIGS=true # Default value: false
+export TP1_CONFIG= base64 encoded config
+export TP2_CONFIG= base64 encoded config
+export RP1_CONFIG= base64 encoded config
+export RP2_CONFIG= base64 encoded config
 ```
 
+6. Deploy postgres container
+```bash
+docker run --name postgresql-container -p <db_port>:5432 -e POSTGRES_PASSWORD=<db_password> -d postgres
+```
 ```bash
 export POSTGRES_DB=<postgres_db>
 export DB_HOST=<host_IP_address>
