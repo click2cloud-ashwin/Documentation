@@ -67,7 +67,9 @@ echo 'kubernetes-dashboard:kubeconfig ='$DEFAULT_KUBECONFIG' '>> $HOME/dashboard
 ```
 Note: Default file is `$HOME/.kube/config` or pass the argument `--kubeconfig` with path while running `npm run start` command.
 
-Place all your configs in above config directory or in `/opt/centaurus-configs`
+Place all your configs in above config directory or in `/opt/centaurus-configs` and should named as shown below
+* TP config file name (for TP-1): `kubeconfig.tp-1`
+* TP config file name (for RP-1): `kubeconfig.rp-1`
 
 If you want to use environment variables, set the following parameters
 
