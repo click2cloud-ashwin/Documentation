@@ -45,6 +45,31 @@ Cluster admin can perform following operation using Dashboard UI:
 * Reconfigure Cluster Partitions
 * Create RBAC roles and role bindings for other fine-grained cluster admins
 
+While creating a Cluster-admin user, Service-account as well as the Clusterrole-binding with the same name as the Cluster-admin user gets created with it. 
+```bigquery
+### Sample YAML 
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cluster-admin
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: cluster-admin
+    namespace: default
+    apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+```
+
 ![img.png](img.png)
 
 
@@ -54,7 +79,59 @@ Tenant admin can perform following operation using Dashboard UI:
 * Monitor health checks & resource utilization for its own respective tenant within the Centaurus cluster
 * List/create/delete users
 * Create RBAC roles and role bindings in the tenant
-* Manage namespace quotas for a tenant
+* Manage namespace quotas for a tenant 
+  
+While creating a Tenant-admin user, Service-account, Tenant, Clusterrole as well as the Clusterrole-binding with the same name as the Tenant-admin user gets created with it.
+```bigquery
+### Sample YAML
+
+apiVersion: v1
+kind: Tenant
+metadata:
+  name: tenant-admin
+spec:
+  storageClusterId: "0"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  tenant: tenant-admin
+  name: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  tenant: tenant-admin
+  name: tenant-admin
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  tenant: tenant-admin
+  name: tenant-admin
+  namespace: default
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tenant-admin
+  tenant: tenant-admin
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: tenant-admin
+    namespace: default
+    apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: tenant-admin
+  apiGroup: rbac.authorization.k8s.io
+```
 
 ![](img_1.png)
 
@@ -62,6 +139,36 @@ Tenant admin can perform following operation using Dashboard UI:
 Tenaent user can perform following operation using Dashboard UI:
 * Application deployment
 * Monitoring and resource utilization according to RBAC
+
+While creating a Tenant-user, Service-account as well as the Role-binding with the same name as the Tenant-user gets created with it.
+```bigquery
+### Sample YAML
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tenant-user
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tenant-user
+subjects:
+  - kind: ServiceAccount
+    name: tenant-user
+    namespace: default
+    apiGroup: ""
+roleRef:
+  kind: Role
+  name: tenant-user
+  apiGroup: rbac.authorization.k8s.io
+```
 
 ![img_2.png](img_2.png)
 
