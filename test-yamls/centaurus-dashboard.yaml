@@ -15,17 +15,161 @@
 #apiVersion: v1
 #kind: Namespace
 #metadata:
-#  name: kubernetes-dashboard
+#  name: centaurus-dashboard
 
 ---
 
-#apiVersion: v1
-#kind: ServiceAccount
-#metadata:
-#  labels:
-#    k8s-app: kubernetes-dashboard
-#  name: kubernetes-dashboard
-#  namespace: kubernetes-dashboard
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: centaurus-dashboard
+  labels:
+    app: postgres
+data:
+  Postgres_DB: postgres
+  DB_Host: postgres-service
+  DB_Port: "5432"
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: centaurus-dashboard
+data:
+  DB_User: cG9zdGdyZXM=
+  DB_User_Password: c29tZVBhc3N3b3Jk
+
+---
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: iam-storage-class
+provisioner: kubernetes.io/host-path
+volumeBindingMode: WaitForFirstConsumer
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-pv-volume
+  namespace: centaurus-dashboard
+  labels:
+    type: local
+    app: postgres
+spec:
+  storageClassName: iam-storage-class
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/var/lib/data"
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pv-claim
+  namespace: centaurus-dashboard
+  labels:
+    app: postgres
+spec:
+  storageClassName: iam-storage-class
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: centaurus-dashboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres-centaurus-iam
+          image: postgres:latest
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: Postgres_DB
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: DB_Host
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: DB_Port
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_User
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_User_Password
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: centaurus-dashboard
+  labels:
+    app: postgres
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: postgres
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: centaurus-dashboard
+  name: centaurus-dashboard
+  namespace: centaurus-dashboard
 
 ---
 
@@ -33,9 +177,9 @@ kind: Service
 apiVersion: v1
 metadata:
   labels:
-    k8s-app: kubernetes-dashboard
-  name: kubernetes-dashboard
-  namespace: kubernetes-dashboard
+    k8s-app: centaurus-dashboard
+  name: centaurus-dashboard
+  namespace: centaurus-dashboard
 spec:
   type: NodePort
   ports:
@@ -43,7 +187,7 @@ spec:
       targetPort: 8443
       nodePort: 30001
   selector:
-    k8s-app: kubernetes-dashboard
+    k8s-app: centaurus-dashboard
 
 ---
 
@@ -51,9 +195,9 @@ spec:
 #kind: Secret
 #metadata:
 #  labels:
-#    k8s-app: kubernetes-dashboard
-#  name: kubernetes-dashboard-certs
-#  namespace: kubernetes-dashboard
+#    k8s-app: centaurus-dashboard
+#  name: centaurus-dashboard-certs
+#  namespace: centaurus-dashboard
 #type: Opaque
 
 ---
@@ -62,9 +206,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   labels:
-    k8s-app: kubernetes-dashboard
-  name: kubernetes-dashboard-csrf
-  namespace: kubernetes-dashboard
+    k8s-app: centaurus-dashboard
+  name: centaurus-dashboard-csrf
+  namespace: centaurus-dashboard
 type: Opaque
 data:
   csrf: ""
@@ -75,9 +219,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   labels:
-    k8s-app: kubernetes-dashboard
-  name: kubernetes-dashboard-key-holder
-  namespace: kubernetes-dashboard
+    k8s-app: centaurus-dashboard
+  name: centaurus-dashboard-key-holder
+  namespace: centaurus-dashboard
 type: Opaque
 
 ---
@@ -86,9 +230,9 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   labels:
-    k8s-app: kubernetes-dashboard
-  name: kubernetes-dashboard-settings
-  namespace: kubernetes-dashboard
+    k8s-app: centaurus-dashboard
+  name: centaurus-dashboard-settings
+  namespace: centaurus-dashboard
 
 ---
 
@@ -96,19 +240,19 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    k8s-app: kubernetes-dashboard
-  name: kubernetes-dashboard
-  namespace: kubernetes-dashboard
+    k8s-app: centaurus-dashboard
+  name: centaurus-dashboard
+  namespace: centaurus-dashboard
 rules:
   # Allow Dashboard to get, update and delete Dashboard exclusive secrets.
   - apiGroups: [""]
     resources: ["secrets"]
-    resourceNames: ["kubernetes-dashboard-key-holder", "kubernetes-dashboard-certs", "kubernetes-dashboard-csrf"]
+    resourceNames: ["centaurus-dashboard-key-holder", "centaurus-dashboard-certs", "centaurus-dashboard-csrf"]
     verbs: ["get", "update", "delete"]
-    # Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.
+    # Allow Dashboard to get and update 'centaurus-dashboard-settings' config map.
   - apiGroups: [""]
     resources: ["configmaps"]
-    resourceNames: ["kubernetes-dashboard-settings"]
+    resourceNames: ["centaurus-dashboard-settings"]
     verbs: ["get", "update"]
     # Allow Dashboard to get metrics.
   - apiGroups: [""]
@@ -126,8 +270,8 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    k8s-app: kubernetes-dashboard
-  name: kubernetes-dashboard
+    k8s-app: centaurus-dashboard
+  name: centaurus-dashboard
 rules:
   # Allow Metrics Scraper to get metrics from the Metrics server
   - apiGroups: ["metrics.k8s.io"]
@@ -140,33 +284,33 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   labels:
-    k8s-app: kubernetes-dashboard
-  name: kubernetes-dashboard
-  namespace: kubernetes-dashboard
+    k8s-app: centaurus-dashboard
+  name: centaurus-dashboard
+  namespace: centaurus-dashboard
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: kubernetes-dashboard
+  name: centaurus-dashboard
 subjects:
   - kind: ServiceAccount
-    name: kubernetes-dashboard
-    namespace: kubernetes-dashboard
+    name: centaurus-dashboard
+    namespace: centaurus-dashboard
 
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: kubernetes-dashboard
-  namespace: kubernetes-dashboard
+  name: centaurus-dashboard
+  namespace: centaurus-dashboard
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: kubernetes-dashboard
+  name: centaurus-dashboard
 subjects:
   - kind: ServiceAccount
-    name: kubernetes-dashboard
-    namespace: kubernetes-dashboard
+    name: centaurus-dashboard
+    namespace: centaurus-dashboard
 
 ---
 
@@ -174,45 +318,71 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   labels:
-    k8s-app: kubernetes-dashboard
-  name: kubernetes-dashboard
-  namespace: kubernetes-dashboard
+    k8s-app: centaurus-dashboard
+  name: centaurus-dashboard
+  namespace: centaurus-dashboard
 spec:
   replicas: 2
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      k8s-app: kubernetes-dashboard
+      k8s-app: centaurus-dashboard
   template:
     metadata:
       labels:
-        k8s-app: kubernetes-dashboard
+        k8s-app: centaurus-dashboard
     spec:
       containers:
-        - name: kubernetes-dashboard
-          image: c2cengg20190034/dashboard:0.6.3
+        - name: centaurus-dashboard
+          image: c2cengg20190034/dashboard:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8443
               protocol: TCP
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: Postgres_DB
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: DB_Host
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: DB_Port
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_User
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_User_Password
+            - name: KUBECONFIG_DIR
+              value: /var/run/centaurus-configs
           args:
-            - --auto-generate-certificates
-            - --authentication-mode=basic
-            - --enable-skip-login
-            - --disable-settings-authorizer
-            - --enable-insecure-login
-            - --insecure-bind-address=0.0.0.0
-            - --namespace=kubernetes-dashboard
+            - --auto-generate-certificates=true
+            - --namespace=centaurus-dashboard
+            - --kubeconfig=/var/run/centaurus-configs/kubeconfig-proxy
             # Uncomment the following line to manually specify Kubernetes API server Host
             # If not specified, Dashboard will attempt to auto discover the API server and connect
             # to it. Uncomment only if the default does not work.
             # - --apiserver-host=http://my-address:port
           volumeMounts:
-            - name: kubernetes-dashboard-certs
+            - name: centaurus-dashboard-certs
               mountPath: /certs
               # Create on-disk volume to store exec logs
             - mountPath: /tmp
               name: tmp-volume
+            - mountPath: /var/run/centaurus-configs
+              name: centaurus-configs
           livenessProbe:
             httpGet:
               scheme: HTTPS
@@ -221,13 +391,16 @@ spec:
             initialDelaySeconds: 30
             timeoutSeconds: 30
       volumes:
-        - name: kubernetes-dashboard-certs
+        - name: centaurus-dashboard-certs
           secret:
-            secretName: kubernetes-dashboard-certs
+            secretName: centaurus-dashboard-certs
         - name: tmp-volume
           emptyDir: {}
-      serviceAccountName: kubernetes-dashboard
-      # Comment the following tolerations if Dashboard must not be deployed on master
+        - name: centaurus-configs
+          hostPath:
+            path: /opt/centaurus-configs
+      serviceAccountName: centaurus-dashboard
+      # Comment the following toleration if Dashboard must not be deployed on master
       tolerations:
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
@@ -240,7 +413,7 @@ metadata:
   labels:
     k8s-app: dashboard-metrics-scraper
   name: dashboard-metrics-scraper
-  namespace: kubernetes-dashboard
+  namespace: centaurus-dashboard
 spec:
   ports:
     - port: 8000
@@ -256,7 +429,7 @@ metadata:
   labels:
     k8s-app: dashboard-metrics-scraper
   name: dashboard-metrics-scraper
-  namespace: kubernetes-dashboard
+  namespace: centaurus-dashboard
 spec:
   replicas: 1
   revisionHistoryLimit: 10
@@ -284,8 +457,8 @@ spec:
           volumeMounts:
             - mountPath: /tmp
               name: tmp-volume
-      serviceAccountName: kubernetes-dashboard
-      # Comment the following tolerations if Dashboard must not be deployed on master
+      serviceAccountName: centaurus-dashboard
+      # Comment the following toleration if Dashboard must not be deployed on master
       tolerations:
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
