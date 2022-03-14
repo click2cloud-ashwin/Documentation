@@ -1,4 +1,4 @@
-# Setup a multi-node Arktos cluster using Ubuntu or custom image on GCE
+# Setup a Centaurus cluster(using kube-up) and Centaurus dashboard on GCE
 
 This document outlines the steps to deploy arktos cluster on GCE from remote workstation machine. User will need to run following steps on workstation machine (the recommended instance size should be atleast ```16 CPU and 32GB RAM``` and the storage size should be ```150GB``` or more)
 
@@ -22,7 +22,8 @@ echo \
   "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update -y
-sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+# Install docker and docker-compose
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose -y
 groupadd docker
 sudo usermod -a -G docker $USER
 sudo service docker restart
@@ -38,19 +39,13 @@ sudo echo 'export GOPATH=$HOME/gopath' >> $HOME/.profile
 source $HOME/.profile
 ```
 
-#### Install Docker-compose
-```bash
-sudo apt install docker-compose -y
-```
-
 ### Deploy Arktos cluster
 
 #### Clone arktos repository
 ```bash
 mkdir -p $HOME/go/src/k8s.io
 cd $HOME/go/src/k8s.io
-git clone -b  ubuntu-image-fix https://github.com/Click2Cloud-Centaurus/arktos.git
-
+git clone -b poc-2022-01-30 https://github.com/CentaurusInfra/arktos.git
 ```
 #### Build the Arktos release binaries from a bash terminal from your Arktos source root directory
 ```cgo
@@ -72,7 +67,7 @@ kube-up script displays the admin cluster details upon successful deployment.
 
 ### Using the arktos cluster using kubectl
 
-To use arktos cluster, use kubectl utility.  e.g:
+To use arktos cluster, use kubectl utility, e.g:
 ```bash
 ./cluster/kubectl.sh get pods --kubeconfig cluster/kubeconfig-proxy
 ./cluster/kubectl.sh get pods --kubeconfig cluster/kubeconfig.tp-1
