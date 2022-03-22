@@ -63,7 +63,7 @@ export KUBECONFIG_DIR=$(pwd) # default "/opt/centaurus-configs"
 To change default kubeconfig path(default is `${HOME}/.kube/config`):
 ```bash
 export DEFAULT_KUBECONFIG=$HOME/go/src/k8s.io/arktos/cluster/kubeconfig-proxy
-echo 'kubernetes-dashboard:kubeconfig ='$DEFAULT_KUBECONFIG' '>> $HOME/dashboard/.npmrc
+echo 'centaurus-dashboard:kubeconfig ='$DEFAULT_KUBECONFIG' '>> $HOME/dashboard/.npmrc
 ```
 Note: Default file is `$HOME/.kube/config` or pass the argument `--kubeconfig` with path while running `npm run start` command.
 
@@ -101,13 +101,13 @@ cd $HOME/dashboard
 sudo sed -i '/bind_address/s/^/#/g' $HOME/dashboard/.npmrc
 sudo sed -i 's/8080/9443/g' $HOME/dashboard/angular.json
 sudo sed -i '0,/RANDFILE/{s/RANDFILE/\#&/}' /etc/ssl/openssl.cnf
-echo 'kubernetes-dashboard:bind_address = 0.0.0.0 '>> $HOME/dashboard/.npmrc 
+echo 'centaurus-dashboard:bind_address = 0.0.0.0 '>> $HOME/dashboard/.npmrc 
 ```
 
 8. To run dashboard:
 
 ```bash
-npm run start:https --kubernetes-dashboard:kubeconfig=$HOME/.kube/config
+npm run start:https --centaurus-dashboard:kubeconfig=$HOME/.kube/config
 ```
 Leave the terminal running.
 
